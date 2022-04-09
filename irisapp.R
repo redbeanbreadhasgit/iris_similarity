@@ -17,13 +17,24 @@ ui <- dashboardPage(
   dashboardBody(
     tabItems(tabItem(tabName = "welcome",
                      h2("View 10 similar datapoints or visualise classes of Iris dataset"),
+                     h3("10 Similar Data Points"),
                      p("The '10 Similar Data Points' tab allows you to view the top 10 most similar datapoints to your input flower dimensions."),
-                     p("The 'PCA' tab allows you to visualise the Iris dataset by their classes, as well as your input dimensions.")
+                     p("First choose your method of computing distance. There are:"),
+                     tags$li("euclidean: length of line segment between two points"),
+                     tags$li("manhattan: sum of absolute difference in all dimensions between two points"),
+                     tags$li("chebyshev: maximum absolute difference in any dimension between two points"),
+                     tags$li("cosine: measures the cosine of the angle between two vectors"),
+                     tags$li("jaccard: returns the similarity between the two points"),
+                     p("Then input your flower dimensions and click the button to view the similar data points and the plot of the points."),
+                     h3("PCA"),
+                     p("The 'PCA' tab allows you to visualise the Iris dataset by their classes, as well as your input dimensions."),
+                     p("Input your flower dimensions and click the button to view the plot of your input point with the data points."),
+                     p("You can infer which class your point belongs to with the plot.")
                      ),
              tabItem(tabName = "similarity",
                      sidebarPanel(
                        h2("10 Similar Iris Flowers"),
-                       selectInput("method", label = "Select Similarity Method", choices = c(getDistMethods())),
+                       selectInput("method", label = "Select Similarity Method", choices = c("euclidean", "manhattan", "chebyshev", "cosine", "jaccard")),
                        numericInput("sepal.length.input", "Sepal length in cm", value = NA),
                        numericInput("sepal.width.input", "Sepal width in cm", value = NA),
                        numericInput("petal.length.input", "Petal length in cm", value = NA),
@@ -121,8 +132,7 @@ server <- function(input, output, session) {
     d <- input$petal.width.input.pca
 
     plot <- getPCAplot(a,b,c,d)
-    # plot <- ggplot(data=dataset, mapping=aes(x=PC1, y=PC2)) + geom_point(aes(color=class),size=3) + theme(text = element_text(size = 20))
-  
+
     output$inputDimensions.pca <- renderText({
       paste0("<u><b>Input dimensions:</u></b><br>", 
              "sepal length <font color=\"#FF0000\"><b>", a, "</b></font>cm, <br>",
