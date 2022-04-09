@@ -1,9 +1,7 @@
 ### Load Libraries
-library(geometry) # dot() function
 library(dplyr)
 library(ggplot2)
-library(stats)
-library(philentropy)
+library(philentropy) # distance() function
 
 ### Get data
 url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
@@ -21,12 +19,21 @@ getTop10_distance <- function(a,b,c,d, method){
   similar_df <- iris.uci
   similar_df$value <- NA
   input <- c(a,b,c,d)
-  # colnames(input) <- colnames(iris.uci)[1:4]
   for (i in 1:nrow(iris.uci)){
     similar_df$value[i] <- getDistance(input, as.double(iris.uci[i,1:4]), method)
   }
-  top10 <- similar_df %>% dplyr::arrange(value) %>% head(10)
-  top10 <- rbind.data.frame(c(input, class="input", value=NA), top10)
+  if (method %in% c("euclidean", "manhattan", "chebyshev")){
+    # sort by asending order since smallest distance is most similar
+    top10 <- similar_df %>% dplyr::arrange(value) %>% head(10)
+    top10 <- rbind.data.frame(c(input, class="input", value=NA), top10)
+    
+  } else {
+    # this is for cosine and jaccard similarity
+    # sort by descending order since largest value is most similar
+    top10 <- similar_df %>% dplyr::arrange(desc(value)) %>% head(10)
+    top10 <- rbind.data.frame(c(input, class="input", value=NA), top10)
+  }
+  
   return(top10)
 }
 
